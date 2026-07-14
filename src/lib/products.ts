@@ -17,6 +17,7 @@ export type Product = {
   image: string;
   tag?: "الأكثر مبيعاً" | "جديد" | "خصم" | "حصري";
   category: "supplements" | "accessories";
+  stock?: number;
 };
 
 function imgSrc(i: { src: string }): string {
@@ -24,14 +25,14 @@ function imgSrc(i: { src: string }): string {
 }
 
 export const products: Product[] = [
-  { id: "1", name: "واي بروتين إيزوليت", nameEn: "Whey Isolate 2kg", brand: "AZM Pro", price: 2400, oldPrice: 2800, image: imgSrc(whey), tag: "الأكثر مبيعاً", category: "supplements" },
-  { id: "2", name: "كرياتين مونوهيدرات", nameEn: "Creatine Monohydrate", brand: "AZM Core", price: 850, image: imgSrc(creatine), tag: "الأكثر مبيعاً", category: "supplements" },
-  { id: "3", name: "بري وركاوت النار", nameEn: "Pre-Workout Fire", brand: "AZM Fuel", price: 1150, oldPrice: 1350, image: imgSrc(pre), tag: "خصم", category: "supplements" },
-  { id: "4", name: "بي سي إيه إيه ٢:١:١", nameEn: "BCAA 2:1:1", brand: "AZM Recover", price: 950, image: imgSrc(bcaa), tag: "جديد", category: "supplements" },
-  { id: "5", name: "حزام رفع أثقال جلد", nameEn: "Leather Lifting Belt", brand: "AZM Iron", price: 1800, image: imgSrc(belt), tag: "حصري", category: "accessories" },
-  { id: "6", name: "شراريط رفع مبطنة", nameEn: "Padded Lifting Straps", brand: "AZM Iron", price: 450, image: imgSrc(straps), category: "accessories" },
-  { id: "7", name: "شيكر ستانلس ستيل", nameEn: "Stainless Steel Shaker", brand: "AZM", price: 350, oldPrice: 450, image: imgSrc(shaker), tag: "خصم", category: "accessories" },
-  { id: "8", name: "قفازات تمرين احترافية", nameEn: "Pro Training Gloves", brand: "AZM Iron", price: 650, image: imgSrc(gloves), tag: "جديد", category: "accessories" },
+  { id: "1", name: "واي بروتين إيزوليت", nameEn: "Whey Isolate 2kg", brand: "AZM Pro", price: 2400, oldPrice: 2800, image: imgSrc(whey), tag: "الأكثر مبيعاً", category: "supplements", stock: 50 },
+  { id: "2", name: "كرياتين مونوهيدرات", nameEn: "Creatine Monohydrate", brand: "AZM Core", price: 850, image: imgSrc(creatine), tag: "الأكثر مبيعاً", category: "supplements", stock: 30 },
+  { id: "3", name: "بري وركاوت النار", nameEn: "Pre-Workout Fire", brand: "AZM Fuel", price: 1150, oldPrice: 1350, image: imgSrc(pre), tag: "خصم", category: "supplements", stock: 20 },
+  { id: "4", name: "بي سي إيه إيه ٢:١:١", nameEn: "BCAA 2:1:1", brand: "AZM Recover", price: 950, image: imgSrc(bcaa), tag: "جديد", category: "supplements", stock: 15 },
+  { id: "5", name: "حزام رفع الأثقال", nameEn: "Weightlifting Belt", brand: "AZM Gear", price: 1200, image: imgSrc(belt), category: "accessories", stock: 10 },
+  { id: "6", name: "أربطة معصم وكاحل", nameEn: "Wrist & Ankle Straps", brand: "AZM Gear", price: 450, image: imgSrc(straps), category: "accessories", stock: 25 },
+  { id: "7", name: "شيكر بروتين ٧٠٠ مل", nameEn: "Protein Shaker 700ml", brand: "AZM Gear", price: 350, image: imgSrc(shaker), tag: "حصري", category: "accessories", stock: 3 },
+  { id: "8", name: "جوانتي رفع الأثقال", nameEn: "Lifting Gloves", brand: "AZM Gear", price: 550, image: imgSrc(gloves), tag: "خصم", category: "accessories", stock: 8 },
 ];
 
 export const brands = ["AZM Pro", "AZM Core", "AZM Fuel", "AZM Iron", "AZM Recover", "AZM"];

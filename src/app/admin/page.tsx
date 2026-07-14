@@ -19,7 +19,7 @@ const statusMap: Record<string, { label: string; tone: "blue" | "gold" | "green"
 const dayNames = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
 
 export default function Page() {
-  const [stats, setStats] = useState<{ todayRevenue: number; todayOrders: number; pendingOrders: number } | null>(null);
+  const [stats, setStats] = useState<{ todayRevenue: number; todayOrders: number; totalOrders: number; pendingOrders: number } | null>(null);
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [weeklyRevenue, setWeeklyRevenue] = useState<number[]>([]);
@@ -73,7 +73,7 @@ export default function Page() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="المبيعات اليوم" value={stats ? `${fmt(stats.todayRevenue)} ج.م` : "—"} delta="من اليوم" tone="up" />
         <StatCard label="الطلبات" value={stats ? `${fmt(stats.todayOrders)}` : "—"} delta={`${stats ? fmt(stats.pendingOrders) : "—"} جديدة`} tone="up" />
-        <StatCard label="العملاء" value="١,٢٣٤" delta="+34 هذا الأسبوع" tone="up" />
+        <StatCard label="إجمالي الطلبات" value={stats ? `${fmt(stats.totalOrders)}` : "—"} delta="كل الطلبات" tone="up" />
         <StatCard label="المخزون المنخفض" value={`${lowStockCount}`} delta="يحتاج انتباه" tone="down" />
       </div>
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, use, useEffect } from "react";
-import { Heart, Share2, Truck, ShieldCheck, RefreshCcw, Star, Minus, Plus, ShoppingBag, ChevronDown } from "lucide-react";
+import { Heart, Share2, Truck, ShieldCheck, RefreshCcw, Star, Minus, Plus, ShoppingBag, ChevronDown, PackageX } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { ProductCard } from "@/components/product-card";
 import { Badge } from "@/components/ui-bits";
@@ -55,6 +55,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   if (!p) notFound();
 
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+  const stock = p.stock ?? 0;
+  const outOfStock = stock === 0;
+  const limited = stock > 0 && stock < 5;
 
   return (
     <PageShell title="" breadcrumbs={[{ l: "المتجر", to: "/shop" }, { l: p.name }]}>
@@ -83,7 +86,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
           <div className="mt-4 flex items-center gap-3">
             <div className="flex items-center gap-0.5 text-azm-gold">{Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}</div>
             <span className="text-sm text-white/60">٤.٨ (١٢٤ تقييم)</span>
-            <Badge tone="green">متوفر</Badge>
+            {outOfStock ? <Badge tone="red">غير متوفر</Badge> : limited ? <Badge tone="gold">كمية محدودة</Badge> : <Badge tone="green">متوفر</Badge>}
           </div>
           <div className="mt-6 flex items-baseline gap-3">
             <span className="font-display text-4xl font-black text-azm-gold">{p.price.toLocaleString("ar-EG")}</span>
@@ -110,6 +113,11 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
             </div>
           </div>
 
+          {outOfStock ? (
+            <div className="mt-8 flex items-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-400">
+              <PackageX className="h-5 w-5" /> هذا المنتج غير متوفر حالياً
+            </div>
+          ) : (
           <div className="mt-8 flex items-center gap-3">
             <div className="flex items-center gap-1 rounded-full border border-white/10 p-1">
               <button onClick={() => setQty(Math.max(1, qty - 1))} className="grid h-9 w-9 place-items-center rounded-full hover:bg-white/5"><Minus className="h-4 w-4" /></button>
@@ -121,6 +129,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
             </button>
             <button onClick={() => { addItem({ id: p.id, name: p.name, nameEn: p.nameEn, brand: p.brand, price: p.price, oldPrice: p.oldPrice, image: p.image, qty }); window.location.href = "/checkout"; }} className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold hover:bg-white/5">اشتر الآن</button>
           </div>
+          )}
           <div className="mt-4 flex items-center gap-2">
             <Link href="/account/wishlist" className="grid h-11 w-11 place-items-center rounded-full border border-white/10 hover:border-azm-gold/40"><Heart className="h-4 w-4" /></Link>
             <button className="grid h-11 w-11 place-items-center rounded-full border border-white/10 hover:border-azm-gold/40"><Share2 className="h-4 w-4" /></button>

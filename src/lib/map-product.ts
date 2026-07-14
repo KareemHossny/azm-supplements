@@ -15,6 +15,7 @@ export function mapProduct(row: ProductRow): Product {
       : row.tags?.includes("خصم") ? "خصم"
       : row.tags?.includes("حصري") ? "حصري"
       : undefined,
+    stock: row.stock ?? 0,
     category: "supplements",
   };
 }

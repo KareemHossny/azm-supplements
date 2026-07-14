@@ -1,20 +1,23 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, PackageX } from "lucide-react";
 import Link from "next/link";
 import type { Product } from "@/lib/products";
 import { useCart } from "@/lib/cart-context";
 
 export function ProductCard({ p, index = 0 }: { p: Product; index?: number }) {
   const { addItem } = useCart();
+  const stock = p.stock ?? 0;
+  const outOfStock = stock === 0;
+  const limited = stock > 0 && stock < 5;
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.6, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-azm-charcoal/40 transition-all duration-500 hover:border-azm-gold/30 hover:bg-azm-charcoal/70"
+      className={`group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-500 ${outOfStock ? "border-white/5 opacity-60" : "border-white/5 hover:border-azm-gold/30 hover:bg-azm-charcoal/70"} bg-azm-charcoal/40`}
     >
       <div className="relative block aspect-square overflow-hidden bg-azm-black">
         <Link href={"/product/" + p.id}>
@@ -32,9 +35,22 @@ export function ProductCard({ p, index = 0 }: { p: Product; index?: number }) {
             {p.tag}
           </span>
         )}
-        <button onClick={() => addItem({ id: p.id, name: p.name, nameEn: p.nameEn, brand: p.brand, price: p.price, oldPrice: p.oldPrice, image: p.image, qty: 1 })} className="absolute bottom-3 left-3 grid h-11 w-11 translate-y-4 place-items-center rounded-full bg-white text-azm-black opacity-0 shadow-2xl transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 hover:bg-azm-gold">
-          <ShoppingBag className="h-4 w-4" />
-        </button>
+        {outOfStock && (
+          <span className="absolute top-3 left-3 rounded-full bg-red-500/90 px-3 py-1 text-[10px] font-bold text-white">غير متوفر</span>
+        )}
+        {limited && (
+          <span className="absolute top-3 left-3 rounded-full bg-yellow-500/90 px-3 py-1 text-[10px] font-bold text-black">كمية محدودة</span>
+        )}
+        {!outOfStock && (
+          <button onClick={() => addItem({ id: p.id, name: p.name, nameEn: p.nameEn, brand: p.brand, price: p.price, oldPrice: p.oldPrice, image: p.image, qty: 1 })} className="absolute bottom-3 left-3 grid h-11 w-11 translate-y-4 place-items-center rounded-full bg-white text-azm-black opacity-0 shadow-2xl transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 hover:bg-azm-gold">
+            <ShoppingBag className="h-4 w-4" />
+          </button>
+        )}
+        {outOfStock && (
+          <span className="absolute bottom-3 left-3 grid h-11 w-11 place-items-center rounded-full bg-white/20 text-white/50">
+            <PackageX className="h-4 w-4" />
+          </span>
+        )}
       </div>
       <Link href={"/product/" + p.id} className="flex flex-1 flex-col gap-2 p-4 sm:p-5">
         <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-azm-gold">

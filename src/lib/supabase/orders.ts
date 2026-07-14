@@ -83,6 +83,15 @@ export async function createOrder(order: {
   const { error: itemsError } = await supabase.from("order_items").insert(items);
   if (itemsError) throw itemsError;
 
+  for (const item of order.items) {
+    if (item.product_id) {
+      const { data: prod } = await supabase.from("products").select("stock").eq("id", item.product_id).single();
+      if (prod) {
+        await supabase.from("products").update({ stock: Math.max(0, prod.stock - item.quantity) }).eq("id", item.product_id);
+      }
+    }
+  }
+
   return orderData as OrderRow;
 }
 

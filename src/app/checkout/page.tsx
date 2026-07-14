@@ -77,6 +77,7 @@ export default function Page() {
         total,
         payment_method: pay,
         items: items.map(i => ({
+          product_id: i.id,
           product_name: i.name,
           product_price: i.price,
           quantity: i.qty,

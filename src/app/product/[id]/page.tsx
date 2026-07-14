@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, use, useEffect } from "react";
+import { use, useEffect, useState } from "react";
 import { Heart, Share2, Truck, ShieldCheck, RefreshCcw, Star, Minus, Plus, ShoppingBag, ChevronDown, PackageX } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { ProductCard } from "@/components/product-card";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui-bits";
 import { products as fallbackProducts } from "@/lib/products";
 import type { Product } from "@/lib/products";
 import { getProductById, getProducts } from "@/lib/supabase/products";
+import { getVariants, type VariantRow } from "@/lib/supabase/variants";
 import { mapProduct } from "@/lib/map-product";
 import { notFound } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
@@ -17,18 +18,23 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [p, setP] = useState<Product | undefined>(undefined);
   const [related, setRelated] = useState<Product[]>([]);
+  const [variants, setVariants] = useState<VariantRow[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [tab, setTab] = useState<"desc" | "ingredients" | "nutrition" | "usage" | "reviews" | "faq">("desc");
+  const [imgIdx, setImgIdx] = useState(0);
   const { addItem } = useCart();
 
   useEffect(() => {
     async function load() {
       try {
-        const [data, allData] = await Promise.all([getProductById(id), getProducts()]);
+        const [data, allData, v] = await Promise.all([getProductById(id), getProducts(), getVariants(id)]);
         const mapped = mapProduct(data);
         setP(mapped);
         setRelated(allData.map(mapProduct).filter(x => x.id !== id).slice(0, 4));
+        setVariants(v);
+        if (v.length > 0) setSelectedVariant(v[0].id);
       } catch {
         const fallback = fallbackProducts.find(x => x.id === id);
         if (fallback) {
@@ -55,9 +61,18 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   if (!p) notFound();
 
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
-  const stock = p.stock ?? 0;
-  const outOfStock = stock === 0;
-  const limited = stock > 0 && stock < 5;
+  const allImages = p.images?.length ? p.images : [p.image];
+  const currentVariant = variants.find(v => v.id === selectedVariant);
+  const effectivePrice = currentVariant ? p.price + currentVariant.price_modifier : p.price;
+  const effectiveStock = currentVariant ? currentVariant.stock : (p.stock ?? 0);
+  const outOfStock = effectiveStock === 0;
+  const limited = effectiveStock > 0 && effectiveStock < 5;
+  const varNames = [...new Set(variants.map(v => v.name))];
+  const varValuesByName: Record<string, { id: string; value: string }[]> = {};
+  for (const v of variants) {
+    if (!varValuesByName[v.name]) varValuesByName[v.name] = [];
+    varValuesByName[v.name].push({ id: v.id, value: v.value });
+  }
 
   return (
     <PageShell title="" breadcrumbs={[{ l: "المتجر", to: "/shop" }, { l: p.name }]}>
@@ -65,13 +80,13 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
         {/* Gallery */}
         <div>
           <div className="group relative overflow-hidden rounded-3xl border border-white/5 bg-azm-charcoal/40">
-            <img src={p.image} alt={p.name} className="aspect-square w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <img src={allImages[imgIdx]} alt={p.name} className="aspect-square w-full object-cover transition-transform duration-700 group-hover:scale-110" />
             {p.tag && <span className="absolute top-4 right-4 rounded-full bg-azm-gold px-3 py-1 text-[10px] font-bold text-azm-black">{p.tag}</span>}
             {discount > 0 && <span className="absolute top-4 left-4 rounded-full bg-red-500 px-3 py-1 text-[10px] font-bold text-white">-{discount}%</span>}
           </div>
           <div className="mt-3 grid grid-cols-4 gap-2">
-            {[p.image, p.image, p.image, p.image].map((im, i) => (
-              <button key={i} className={`overflow-hidden rounded-xl border ${i === 0 ? "border-azm-gold" : "border-white/10"}`}>
+            {allImages.map((im, i) => (
+              <button key={i} onClick={() => setImgIdx(i)} className={`overflow-hidden rounded-xl border ${i === imgIdx ? "border-azm-gold" : "border-white/10"}`}>
                 <img src={im} className="aspect-square w-full object-cover" alt="" />
               </button>
             ))}
@@ -89,29 +104,26 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
             {outOfStock ? <Badge tone="red">غير متوفر</Badge> : limited ? <Badge tone="gold">كمية محدودة</Badge> : <Badge tone="green">متوفر</Badge>}
           </div>
           <div className="mt-6 flex items-baseline gap-3">
-            <span className="font-display text-4xl font-black text-azm-gold">{p.price.toLocaleString("ar-EG")}</span>
+            <span className="font-display text-4xl font-black text-azm-gold">{effectivePrice.toLocaleString("ar-EG")}</span>
             <span className="text-sm text-white/60">ج.م</span>
             {p.oldPrice && <span className="text-lg text-white/40 line-through">{p.oldPrice.toLocaleString("ar-EG")}</span>}
           </div>
 
-          <div className="mt-8 space-y-4">
-            <div>
-              <div className="mb-2 text-xs font-bold uppercase tracking-wider text-white/60">النكهة</div>
-              <div className="flex flex-wrap gap-2">
-                {["شوكولاتة", "فانيليا", "فراولة", "موز"].map((f, i) => (
-                  <button key={f} className={`rounded-full border px-4 py-2 text-xs font-semibold ${i === 0 ? "border-azm-gold bg-azm-gold text-azm-black" : "border-white/10 text-white/70"}`}>{f}</button>
-                ))}
-              </div>
+          {/* Variants */}
+          {varNames.length > 0 && (
+            <div className="mt-8 space-y-4">
+              {varNames.map(vn => (
+                <div key={vn}>
+                  <div className="mb-2 text-xs font-bold uppercase tracking-wider text-white/60">{vn}</div>
+                  <div className="flex flex-wrap gap-2">
+                    {(varValuesByName[vn] || []).map(vv => (
+                      <button key={vv.id} onClick={() => setSelectedVariant(vv.id)} className={`rounded-full border px-4 py-2 text-xs font-semibold ${selectedVariant === vv.id ? "border-azm-gold bg-azm-gold text-azm-black" : "border-white/10 text-white/70"}`}>{vv.value}</button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div>
-              <div className="mb-2 text-xs font-bold uppercase tracking-wider text-white/60">الحجم</div>
-              <div className="flex flex-wrap gap-2">
-                {["1kg", "2kg", "5kg"].map((s, i) => (
-                  <button key={s} className={`rounded-full border px-4 py-2 text-xs font-semibold ${i === 1 ? "border-azm-gold bg-azm-gold text-azm-black" : "border-white/10 text-white/70"}`}>{s}</button>
-                ))}
-              </div>
-            </div>
-          </div>
+          )}
 
           {outOfStock ? (
             <div className="mt-8 flex items-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-400">
@@ -124,10 +136,10 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
               <span className="w-10 text-center font-bold">{qty}</span>
               <button onClick={() => setQty(qty + 1)} className="grid h-9 w-9 place-items-center rounded-full hover:bg-white/5"><Plus className="h-4 w-4" /></button>
             </div>
-            <button onClick={() => { addItem({ id: p.id, name: p.name, nameEn: p.nameEn, brand: p.brand, price: p.price, oldPrice: p.oldPrice, image: p.image, qty }); }} className="flex flex-1 items-center justify-center gap-2 rounded-full bg-azm-gold py-3 text-sm font-bold text-azm-black transition hover:bg-azm-sand">
+            <button onClick={() => { addItem({ id: p.id, name: p.name, nameEn: p.nameEn, brand: p.brand, price: effectivePrice, oldPrice: p.oldPrice, image: p.image, qty }); }} className="flex flex-1 items-center justify-center gap-2 rounded-full bg-azm-gold py-3 text-sm font-bold text-azm-black transition hover:bg-azm-sand">
               <ShoppingBag className="h-4 w-4" /> أضف للسلة
             </button>
-            <button onClick={() => { addItem({ id: p.id, name: p.name, nameEn: p.nameEn, brand: p.brand, price: p.price, oldPrice: p.oldPrice, image: p.image, qty }); window.location.href = "/checkout"; }} className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold hover:bg-white/5">اشتر الآن</button>
+            <button onClick={() => { addItem({ id: p.id, name: p.name, nameEn: p.nameEn, brand: p.brand, price: effectivePrice, oldPrice: p.oldPrice, image: p.image, qty }); window.location.href = "/checkout"; }} className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold hover:bg-white/5">اشتر الآن</button>
           </div>
           )}
           <div className="mt-4 flex items-center gap-2">
@@ -146,7 +158,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs (unchanged) */}
       <div className="mt-16 border-b border-white/10">
         <div className="flex flex-wrap gap-1 -mb-px">
           {[

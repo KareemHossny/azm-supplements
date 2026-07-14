@@ -11,6 +11,7 @@ export type ProductRow = {
   price: number;
   old_price: number | null;
   image_url: string;
+  images: string[];
   category_id: string;
   tags: string[];
   stock: number;
@@ -64,9 +65,10 @@ export async function createProduct(product: {
   price: number;
   old_price?: number;
   image_url: string;
+  images?: string[];
   category_id: string;
   stock?: number;
-  sku?: string;
+  tags?: string[];
 }) {
   const supabase = createClient();
   const { data, error } = await supabase.from("products").insert(product).select().single();

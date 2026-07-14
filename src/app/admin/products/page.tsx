@@ -42,7 +42,7 @@ export default function Page() {
           <thead className="bg-azm-charcoal/60 text-xs uppercase text-white/50">
             <tr>
               <th className="p-3"><input type="checkbox" /></th>
-              <th className="p-3">المنتج</th><th className="p-3">SKU</th><th className="p-3">الفئة</th>
+              <th className="p-3">المنتج</th><th className="p-3">الفئة</th>
               <th className="p-3">السعر</th><th className="p-3">المخزون</th><th className="p-3">الحالة</th><th className="p-3"></th>
             </tr>
           </thead>
@@ -53,8 +53,7 @@ export default function Page() {
               return (
                 <tr key={p.id} className="hover:bg-white/[0.02]">
                   <td className="p-3"><input type="checkbox" /></td>
-                  <td className="p-3"><div className="flex items-center gap-3"><img src={p.image_url} className="h-10 w-10 rounded-lg object-cover" alt="" /><div><div className="font-bold">{p.name}</div><div className="text-xs text-white/40">{p.brand}</div></div></div></td>
-                  <td className="p-3 font-mono text-xs text-white/60">{p.sku || `AZM-${p.id.slice(0, 4).toUpperCase()}`}</td>
+                  <td className="p-3"><div className="flex items-center gap-3"><img src={p.images?.[0] || p.image_url} className="h-10 w-10 rounded-lg object-cover" alt="" /><div><div className="font-bold">{p.name}</div><div className="text-xs text-white/40">{p.brand}</div></div></div></td>
                   <td className="p-3 text-white/70">{cat}</td>
                   <td className="p-3 font-bold text-azm-gold">{p.price} ج.م</td>
                   <td className="p-3">{stock}</td>

@@ -9,7 +9,8 @@ export function mapProduct(row: ProductRow): Product {
     brand: row.brand,
     price: Number(row.price),
     oldPrice: row.old_price ? Number(row.old_price) : undefined,
-    image: row.image_url || "/placeholder.svg",
+    image: row.images?.[0] || row.image_url || "/placeholder.svg",
+    images: row.images?.length ? row.images : row.image_url ? [row.image_url] : [],
     tag: row.tags?.includes("الأكثر مبيعاً") ? "الأكثر مبيعاً"
       : row.tags?.includes("جديد") ? "جديد"
       : row.tags?.includes("خصم") ? "خصم"

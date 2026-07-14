@@ -23,8 +23,8 @@
   "/account/page": "app/account/page.js",
   "/account/profile/page": "app/account/profile/page.js",
   "/account/returns/page": "app/account/returns/page.js",
-  "/admin/admins/page": "app/admin/admins/page.js",
   "/account/wishlist/page": "app/account/wishlist/page.js",
+  "/admin/admins/page": "app/admin/admins/page.js",
   "/admin/analytics/page": "app/admin/analytics/page.js",
   "/admin/categories/page": "app/admin/categories/page.js",
   "/admin/coupons/page": "app/admin/coupons/page.js",
@@ -38,7 +38,7 @@
   "/admin/products/[id]/page": "app/admin/products/[id]/page.js",
   "/admin/products/new/page": "app/admin/products/new/page.js",
   "/admin/products/page": "app/admin/products/page.js",
+  "/admin/reviews/page": "app/admin/reviews/page.js",
   "/admin/settings/page": "app/admin/settings/page.js",
-  "/admin/shipping/page": "app/admin/shipping/page.js",
-  "/admin/reviews/page": "app/admin/reviews/page.js"
+  "/admin/shipping/page": "app/admin/shipping/page.js"
 }

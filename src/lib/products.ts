@@ -15,6 +15,7 @@ export type Product = {
   price: number;
   oldPrice?: number;
   image: string;
+  images?: string[];
   tag?: "الأكثر مبيعاً" | "جديد" | "خصم" | "حصري";
   category: "supplements" | "accessories";
   stock?: number;

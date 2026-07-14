@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Check, CreditCard, Wallet, Truck, Building2, Loader2 } from "lucide-react";
+import { Check, Truck, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { governorates as staticGovernorates } from "@/lib/products";
 import { getGovernorates } from "@/lib/supabase/governorates";
@@ -75,7 +75,7 @@ export default function Page() {
         discount,
         subtotal: cartSubtotal,
         total,
-        payment_method: pay,
+        payment_method: "cod",
         items: items.map(i => ({
           product_id: i.id,
           product_name: i.name,
@@ -145,17 +145,13 @@ export default function Page() {
           {step === 3 && (
             <div className="space-y-4">
               <h2 className="font-display text-2xl font-black">طريقة الدفع</h2>
-              <div className="space-y-3">
-                {[{k:"cod",l:"الدفع عند الاستلام",d:"ادفع كاش عند وصول الطلب",i:Truck},{k:"card",l:"بطاقة ائتمان",d:"فيزا / ماستركارد / ميزة",i:CreditCard},{k:"wallet",l:"محفظة إلكترونية",d:"فودافون كاش، إنستاباي",i:Wallet},{k:"bank",l:"تحويل بنكي",d:"تحويل مباشر لحساب AZM",i:Building2}].map(o => (
-                  <button key={o.k} onClick={() => setPay(o.k)} className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-right transition ${pay === o.k ? "border-azm-gold bg-azm-gold/5" : "border-white/10 hover:border-white/20"}`}>
-                    <div className={`grid h-11 w-11 place-items-center rounded-full ${pay === o.k ? "bg-azm-gold text-azm-black" : "bg-white/5 text-white/60"}`}><o.i className="h-5 w-5" /></div>
-                    <div className="flex-1">
-                      <div className="font-bold">{o.l}</div>
-                      <div className="text-xs text-white/50">{o.d}</div>
-                    </div>
-                    {pay === o.k && <Check className="h-5 w-5 text-azm-gold" />}
-                  </button>
-                ))}
+              <div className="flex items-center gap-4 rounded-2xl border border-azm-gold/30 bg-azm-gold/5 p-4">
+                <div className="grid h-11 w-11 place-items-center rounded-full bg-azm-gold text-azm-black"><Truck className="h-5 w-5" /></div>
+                <div>
+                  <div className="font-bold">الدفع عند الاستلام</div>
+                  <div className="text-xs text-white/50">ادفع كاش عند وصول الطلب</div>
+                </div>
+                <Check className="mr-auto h-5 w-5 text-azm-gold" />
               </div>
             </div>
           )}
@@ -166,7 +162,7 @@ export default function Page() {
               <ReviewRow label="الموبايل" value={phone} />
               <ReviewRow label="العنوان" value={`${gov.name} • ${city} • ${address}`} />
               <ReviewRow label="الشحن" value={`${shippingFee} ج.م • ${gov.days} أيام`} />
-              <ReviewRow label="طريقة الدفع" value={pay === "cod" ? "الدفع عند الاستلام" : pay === "card" ? "بطاقة" : pay === "wallet" ? "محفظة" : "تحويل بنكي"} />
+              <ReviewRow label="طريقة الدفع" value="الدفع عند الاستلام" />
             </div>
           )}
 

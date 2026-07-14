@@ -23,8 +23,8 @@
   "/account/page": "/account",
   "/account/profile/page": "/account/profile",
   "/account/returns/page": "/account/returns",
-  "/account/wishlist/page": "/account/wishlist",
   "/admin/admins/page": "/admin/admins",
+  "/account/wishlist/page": "/account/wishlist",
   "/admin/analytics/page": "/admin/analytics",
   "/admin/categories/page": "/admin/categories",
   "/admin/coupons/page": "/admin/coupons",
@@ -33,12 +33,12 @@
   "/admin/login/page": "/admin/login",
   "/admin/notifications/page": "/admin/notifications",
   "/admin/orders/[id]/page": "/admin/orders/[id]",
-  "/admin/page": "/admin",
   "/admin/orders/page": "/admin/orders",
+  "/admin/page": "/admin",
   "/admin/products/[id]/page": "/admin/products/[id]",
   "/admin/products/new/page": "/admin/products/new",
   "/admin/products/page": "/admin/products",
-  "/admin/reviews/page": "/admin/reviews",
   "/admin/settings/page": "/admin/settings",
-  "/admin/shipping/page": "/admin/shipping"
+  "/admin/shipping/page": "/admin/shipping",
+  "/admin/reviews/page": "/admin/reviews"
 }

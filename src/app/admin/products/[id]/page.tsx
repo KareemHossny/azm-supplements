@@ -8,7 +8,7 @@ import { AdminShell } from "@/components/admin-shell";
 import { Badge } from "@/components/ui-bits";
 import { getProductById, updateProduct, type ProductRow } from "@/lib/supabase/products";
 import { getCategories, type CategoryRow } from "@/lib/supabase/categories";
-import { getVariants, createVariant, deleteVariant, type VariantRow } from "@/lib/supabase/variants";
+import { getVariants, createVariant, updateVariant, deleteVariant, type VariantRow } from "@/lib/supabase/variants";
 
 type EditableProduct = Omit<ProductRow, "id" | "created_at" | "updated_at">;
 

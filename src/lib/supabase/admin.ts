@@ -4,8 +4,13 @@ import { createClient } from "./client";
 
 export async function signIn(email: string, password: string) {
   const supabase = createClient();
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  return { data, error };
+  const result = await Promise.race([
+    supabase.auth.signInWithPassword({ email, password }),
+    new Promise<{ data: null; error: { message: string } }>((resolve) =>
+      setTimeout(() => resolve({ data: null, error: { message: "انتهت مهلة الاتصال" } }), 15000),
+    ),
+  ]);
+  return result;
 }
 
 export async function signOut() {

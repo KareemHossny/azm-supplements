@@ -50,6 +50,7 @@ export async function middleware(request: NextRequest) {
     await supabase.auth.signOut();
     const url = request.nextUrl.clone();
     url.pathname = ADMIN_LOGIN;
+    url.searchParams.set("reason", "not-admin");
     return NextResponse.redirect(url);
   }
 

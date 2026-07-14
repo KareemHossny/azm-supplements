@@ -11,14 +11,14 @@ export default function Page() {
     getGovernorates(true).then(setGovs).catch(() => {});
   }, []);
 
-  const handleBlur = useCallback(async (id: string, field: "fee" | "delivery_days" | "is_active", value: string | boolean) => {
+  const updateField = useCallback(async (id: string, field: "fee" | "delivery_days" | "is_active", value: string | boolean) => {
     const updates: Partial<GovernorateRow> = {};
     if (field === "fee") updates.fee = Number(value);
     else if (field === "delivery_days") updates.delivery_days = String(value);
     else if (field === "is_active") updates.is_active = Boolean(value);
+    setGovs(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g));
     try {
       await updateGovernorate(id, updates);
-      setGovs(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g));
     } catch { /* ignore */ }
   }, []);
 
@@ -34,13 +34,13 @@ export default function Page() {
               <tr key={g.id}>
                 <td className="p-3 font-bold">{g.name}</td>
                 <td className="p-3">
-                  <input type="number" defaultValue={g.fee} onBlur={e => handleBlur(g.id, "fee", e.target.value)} className="w-24 rounded-lg border border-white/10 bg-azm-black/40 px-3 py-1.5" />
+                  <input type="number" value={g.fee} onChange={e => updateField(g.id, "fee", e.target.value)} className="w-24 rounded-lg border border-white/10 bg-azm-black/40 px-3 py-1.5" />
                 </td>
                 <td className="p-3">
-                  <input defaultValue={g.delivery_days} onBlur={e => handleBlur(g.id, "delivery_days", e.target.value)} className="w-24 rounded-lg border border-white/10 bg-azm-black/40 px-3 py-1.5" />
+                  <input value={g.delivery_days} onChange={e => updateField(g.id, "delivery_days", e.target.value)} className="w-24 rounded-lg border border-white/10 bg-azm-black/40 px-3 py-1.5" />
                 </td>
                 <td className="p-3">
-                  <input type="checkbox" defaultChecked={g.is_active} onChange={e => handleBlur(g.id, "is_active", e.target.checked)} className="accent-azm-gold" />
+                  <input type="checkbox" checked={g.is_active} onChange={e => updateField(g.id, "is_active", e.target.checked)} className="accent-azm-gold" />
                 </td>
               </tr>
             ))}

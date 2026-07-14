@@ -65,13 +65,6 @@ export default function Page() {
     setSaving(false);
   }
 
-  function Input({ l, k, p, type = "text" }: { l: string; k: string; p?: string; type?: string }) {
-    return (
-      <div><label className="mb-1 block text-xs text-white/60">{l}</label>
-        <input type={type} value={(form as Record<string, string>)[k] ?? ""} onChange={e => f(k, e.target.value)} placeholder={p} className="w-full rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2.5 text-sm" /></div>
-    );
-  }
-
   return (
     <AdminShell title="إضافة منتج جديد" actions={
       <><Link href="/admin/products" className="rounded-full border border-white/10 px-5 py-2 text-sm">إلغاء</Link>
@@ -81,9 +74,9 @@ export default function Page() {
         <div className="rounded-2xl border border-white/5 bg-azm-charcoal/40 p-6">
           <h3 className="mb-4 font-display text-lg font-black">معلومات أساسية</h3>
           <div className="space-y-4">
-            <Input l="الاسم (عربي)" k="name" />
-            <Input l="الاسم (إنجليزي)" k="name_en" />
-            <Input l="الماركة" k="brand" />
+            <div><label className="mb-1 block text-xs text-white/60">الاسم (عربي)</label><input value={form.name} onChange={e => f("name", e.target.value)} className="w-full rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2.5 text-sm" /></div>
+            <div><label className="mb-1 block text-xs text-white/60">الاسم (إنجليزي)</label><input value={form.name_en} onChange={e => f("name_en", e.target.value)} className="w-full rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2.5 text-sm" /></div>
+            <div><label className="mb-1 block text-xs text-white/60">الماركة</label><input value={form.brand} onChange={e => f("brand", e.target.value)} className="w-full rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2.5 text-sm" /></div>
             <div><label className="mb-1 block text-xs text-white/60">الوصف</label><textarea value={form.description} onChange={e => f("description", e.target.value)} rows={3} className="w-full rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2.5 text-sm" /></div>
             <div><label className="mb-1 block text-xs text-white/60">الفئة</label>
               <select value={form.category_id} onChange={e => f("category_id", e.target.value)} className="w-full rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2.5 text-sm">
@@ -96,10 +89,10 @@ export default function Page() {
         <div className="rounded-2xl border border-white/5 bg-azm-charcoal/40 p-6">
           <h3 className="mb-4 font-display text-lg font-black">السعر والمخزون</h3>
           <div className="space-y-4">
-            <Input l="السعر (ج.م)" k="price" type="number" />
-            <Input l="السعر القديم (اختياري)" k="old_price" type="number" />
-            <Input l="المخزون" k="stock" type="number" />
-            <Input l="الوسوم (مفصولة بفاصلة)" k="tags" p="الأكثر مبيعاً, جديد, خصم" />
+            <div><label className="mb-1 block text-xs text-white/60">السعر (ج.م)</label><input type="number" value={form.price} onChange={e => f("price", e.target.value)} className="w-full rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2.5 text-sm" /></div>
+            <div><label className="mb-1 block text-xs text-white/60">السعر القديم (اختياري)</label><input type="number" value={form.old_price} onChange={e => f("old_price", e.target.value)} className="w-full rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2.5 text-sm" /></div>
+            <div><label className="mb-1 block text-xs text-white/60">المخزون</label><input type="number" value={form.stock} onChange={e => f("stock", e.target.value)} className="w-full rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2.5 text-sm" /></div>
+            <div><label className="mb-1 block text-xs text-white/60">الوسوم (مفصولة بفاصلة)</label><input value={form.tags} onChange={e => f("tags", e.target.value)} placeholder="الأكثر مبيعاً, جديد, خصم" className="w-full rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2.5 text-sm" /></div>
           </div>
         </div>
       </div>

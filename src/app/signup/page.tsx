@@ -9,6 +9,7 @@ import { SiteFooter } from "@/components/site-footer";
 
 export default function Page() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,7 +20,7 @@ export default function Page() {
     setError("");
     setLoading(true);
     try {
-      await signUp(email, password);
+      await signUp(email, password, name);
       router.push("/login?confirmed=true");
     } catch (err) {
       setError(err instanceof Error ? err.message : "فشل إنشاء الحساب");
@@ -37,6 +38,10 @@ export default function Page() {
             <p className="mt-2 text-sm text-white/60">أنشئ حسابك لتتمكن من الطلب والمتابعة</p>
           </div>
           {error && <div className="rounded-xl bg-red-500/10 p-3 text-sm text-red-400">{error}</div>}
+          <div>
+            <label className="mb-1 block text-xs text-white/60">الاسم</label>
+            <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full rounded-xl border border-white/10 bg-azm-black/40 px-4 py-3 text-sm" />
+          </div>
           <div>
             <label className="mb-1 block text-xs text-white/60">البريد الإلكتروني</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full rounded-xl border border-white/10 bg-azm-black/40 px-4 py-3 text-sm" />

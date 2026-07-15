@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, ShoppingBag, User, Heart, Menu, X } from "lucide-react";
+import { Search, ShoppingBag, User, Heart, Menu, X, LogIn } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCart } from "@/lib/cart-context";
+import { getUser } from "@/lib/supabase/auth";
 
 const nav = [
   { ar: "الرئيسية", en: "Home", to: "/" },
@@ -17,6 +18,7 @@ const nav = [
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const pathname = usePathname();
   const { itemCount } = useCart();
   useEffect(() => {
@@ -24,6 +26,7 @@ export function SiteHeader() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+  useEffect(() => { getUser().then(u => setLoggedIn(!!u)).catch(() => setLoggedIn(false)); }, []);
   const isActive = (to: string, exact?: boolean) =>
     exact ? pathname === to : pathname.startsWith(to);
   return (
@@ -66,9 +69,13 @@ export function SiteHeader() {
           <Link href="/account/favorites" className="hidden h-10 w-10 place-items-center rounded-full text-white/70 transition hover:bg-white/5 hover:text-white sm:grid">
             <Heart className="h-5 w-5" />
           </Link>
-          <Link href="/account" className="hidden h-10 w-10 place-items-center rounded-full text-white/70 transition hover:bg-white/5 hover:text-white sm:grid">
-            <User className="h-5 w-5" />
-          </Link>
+          {loggedIn === false ? (
+            <Link href="/login" className="hidden h-10 place-items-center rounded-full px-4 text-sm font-bold text-azm-gold transition hover:bg-azm-gold/10 sm:inline-flex items-center gap-1.5"><LogIn className="h-4 w-4" /> دخول</Link>
+          ) : (
+            <Link href="/account" className="hidden h-10 w-10 place-items-center rounded-full text-white/70 transition hover:bg-white/5 hover:text-white sm:grid">
+              <User className="h-5 w-5" />
+            </Link>
+          )}
           <Link href="/cart" className="relative grid h-10 w-10 place-items-center rounded-full text-white/70 transition hover:bg-white/5 hover:text-white">
             <ShoppingBag className="h-5 w-5" />
             {itemCount > 0 && <span className="absolute -top-0.5 -right-0.5 grid h-4 w-4 place-items-center rounded-full bg-azm-gold text-[10px] font-bold text-azm-black">{itemCount > 9 ? "9+" : itemCount}</span>}
@@ -97,8 +104,11 @@ export function SiteHeader() {
               </Link>
             ))}
             <div className="mt-2 grid grid-cols-2 gap-2 border-t border-white/5 pt-3">
-              <Link href="/account" onClick={() => setOpen(false)} className="rounded-lg bg-white/5 px-3 py-3 text-center text-sm">حسابي</Link>
-              <Link href="/cart" onClick={() => setOpen(false)} className="rounded-lg bg-azm-gold px-3 py-3 text-center text-sm font-bold text-azm-black">السلة</Link>
+              {loggedIn === false ? (
+                <><Link href="/login" onClick={() => setOpen(false)} className="rounded-lg bg-azm-gold px-3 py-3 text-center text-sm font-bold text-azm-black">تسجيل الدخول</Link><Link href="/signup" onClick={() => setOpen(false)} className="rounded-lg bg-white/5 px-3 py-3 text-center text-sm">إنشاء حساب</Link></>
+              ) : (
+                <><Link href="/account" onClick={() => setOpen(false)} className="rounded-lg bg-white/5 px-3 py-3 text-center text-sm">حسابي</Link><Link href="/cart" onClick={() => setOpen(false)} className="rounded-lg bg-azm-gold px-3 py-3 text-center text-sm font-bold text-azm-black">السلة</Link></>
+              )}
             </div>
           </nav>
         </div>

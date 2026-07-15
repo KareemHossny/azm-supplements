@@ -12,7 +12,7 @@ export default function Favorites() {
 
   useEffect(() => {
     getWishlist()
-      .then(data => setItems(data.map((d: { products: ProductRow }) => mapProduct(d.products))))
+      .then(data => setItems(data.map(d => mapProduct(d.products as ProductRow))))
       .catch(() => {});
   }, []);
 

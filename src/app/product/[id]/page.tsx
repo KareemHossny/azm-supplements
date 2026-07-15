@@ -10,6 +10,7 @@ import { products as fallbackProducts } from "@/lib/products";
 import type { Product } from "@/lib/products";
 import { getProductById, getProducts } from "@/lib/supabase/products";
 import { getVariants, type VariantRow } from "@/lib/supabase/variants";
+import { addToWishlist, removeFromWishlist, isInWishlist } from "@/lib/supabase/wishlist";
 import { mapProduct } from "@/lib/map-product";
 import { notFound } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
@@ -24,14 +25,16 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const [qty, setQty] = useState(1);
   const [tab, setTab] = useState<"desc" | "ingredients" | "nutrition" | "usage" | "reviews" | "faq">("desc");
   const [imgIdx, setImgIdx] = useState(0);
+  const [wishlisted, setWishlisted] = useState(false);
   const { addItem } = useCart();
 
   useEffect(() => {
     async function load() {
       try {
-        const [data, allData, v] = await Promise.all([getProductById(id), getProducts(), getVariants(id)]);
+        const [data, allData, v, wl] = await Promise.all([getProductById(id), getProducts(), getVariants(id), isInWishlist(id).catch(() => false)]);
         const mapped = mapProduct(data);
         setP(mapped);
+        setWishlisted(wl);
         setRelated(allData.map(mapProduct).filter(x => x.id !== id).slice(0, 4));
         setVariants(v);
         if (v.length > 0) setSelectedVariant(v[0].id);
@@ -47,6 +50,18 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     }
     load();
   }, [id]);
+
+  async function toggleWishlist() {
+    try {
+      if (wishlisted) {
+        await removeFromWishlist(id);
+        setWishlisted(false);
+      } else {
+        await addToWishlist(id);
+        setWishlisted(true);
+      }
+    } catch { /* ignore */ }
+  }
 
   if (loading) {
     return (
@@ -143,7 +158,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
           </div>
           )}
           <div className="mt-4 flex items-center gap-2">
-            <Link href="/account/wishlist" className="grid h-11 w-11 place-items-center rounded-full border border-white/10 hover:border-azm-gold/40"><Heart className="h-4 w-4" /></Link>
+            <button onClick={toggleWishlist} className={`grid h-11 w-11 place-items-center rounded-full border transition ${wishlisted ? "border-azm-gold bg-azm-gold/10 text-azm-gold" : "border-white/10 hover:border-azm-gold/40"}`}><Heart className={`h-4 w-4 ${wishlisted ? "fill-current" : ""}`} /></button>
             <button className="grid h-11 w-11 place-items-center rounded-full border border-white/10 hover:border-azm-gold/40"><Share2 className="h-4 w-4" /></button>
           </div>
 

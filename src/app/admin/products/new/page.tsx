@@ -3,16 +3,18 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus, Trash2, Upload } from "lucide-react";
+import { Plus, Trash2, Upload, Loader2 } from "lucide-react";
 import { AdminShell } from "@/components/admin-shell";
 import { getCategories, type CategoryRow } from "@/lib/supabase/categories";
 import { createProduct } from "@/lib/supabase/products";
 import { createVariant } from "@/lib/supabase/variants";
+import { uploadImage } from "@/lib/supabase/upload";
 
 export default function Page() {
   const router = useRouter();
   const [cats, setCats] = useState<CategoryRow[]>([]);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [newImg, setNewImg] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [variants, setVariants] = useState<{ name: string; value: string; price_modifier: number; stock: number }[]>([]);
@@ -29,6 +31,20 @@ export default function Page() {
     if (!newImg.trim()) return;
     setImages(prev => [...prev, newImg.trim()]);
     setNewImg("");
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        const url = await uploadImage(file);
+        setImages(prev => [...prev, url]);
+      }
+    } catch { /* ignore */ }
+    setUploading(false);
+    e.target.value = "";
   }
 
   function removeImage(idx: number) { setImages(prev => prev.filter((_, i) => i !== idx)); }
@@ -109,7 +125,12 @@ export default function Page() {
           ))}
         </div>
         <div className="mt-3 flex gap-2">
-          <input value={newImg} onChange={e => setNewImg(e.target.value)} onKeyDown={e => e.key === "Enter" && addImage()} placeholder="URL الصورة" className="flex-1 rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2 text-sm" />
+          <label className="flex cursor-pointer items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm hover:bg-white/5">
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {uploading ? "جاري الرفع..." : "رفع من الجهاز"}
+            <input type="file" accept="image/*" multiple onChange={handleFileUpload} className="hidden" disabled={uploading} />
+          </label>
+          <input value={newImg} onChange={e => setNewImg(e.target.value)} onKeyDown={e => e.key === "Enter" && addImage()} placeholder="أو URL الصورة" className="flex-1 rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2 text-sm" />
           <button onClick={addImage} className="rounded-full bg-azm-gold px-4 py-2 text-sm font-bold text-azm-black"><Upload className="h-4 w-4" /></button>
         </div>
       </div>

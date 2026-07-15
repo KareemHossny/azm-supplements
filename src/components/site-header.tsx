@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, ShoppingBag, User, Menu, X, Heart } from "lucide-react";
+import { Search, ShoppingBag, User, Heart, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCart } from "@/lib/cart-context";
 
@@ -62,7 +62,8 @@ export function SiteHeader() {
           <Link href="/shop" className="grid h-10 w-10 place-items-center rounded-full text-white/70 transition hover:bg-white/5 hover:text-white">
             <Search className="h-5 w-5" />
           </Link>
-          <Link href="/account/wishlist" className="hidden h-10 w-10 place-items-center rounded-full text-white/70 transition hover:bg-white/5 hover:text-white sm:grid">
+
+          <Link href="/account/favorites" className="hidden h-10 w-10 place-items-center rounded-full text-white/70 transition hover:bg-white/5 hover:text-white sm:grid">
             <Heart className="h-5 w-5" />
           </Link>
           <Link href="/account" className="hidden h-10 w-10 place-items-center rounded-full text-white/70 transition hover:bg-white/5 hover:text-white sm:grid">

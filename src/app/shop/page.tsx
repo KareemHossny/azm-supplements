@@ -6,29 +6,30 @@ import { Filter, Grid3x3, List, Search, X, SlidersHorizontal, PackageOpen } from
 import { PageShell } from "@/components/page-shell";
 import { ProductCard } from "@/components/product-card";
 import { EmptyState, Chip } from "@/components/ui-bits";
-import { products as fallbackProducts, brands, categories as fallbackCats } from "@/lib/products";
+import { brands } from "@/lib/products";
 import { getProducts } from "@/lib/supabase/products";
 import { getCategories } from "@/lib/supabase/categories";
 import { mapProduct } from "@/lib/map-product";
 
 export default function Page() {
-  const [products, setProducts] = useState(fallbackProducts);
-  const [categories, setCategories] = useState(fallbackCats);
-  const [, setLoading] = useState(true);
+  const [products, setProducts] = useState<ReturnType<typeof mapProduct>[]>([]);
+  const [categories, setCategories] = useState<{ slug: string; name: string; nameEn: string; count: number }[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
         const [prodData, catData] = await Promise.all([getProducts(), getCategories()]);
-        setProducts(prodData.map(mapProduct));
+        const mapped = prodData.map(mapProduct);
+        setProducts(mapped);
         setCategories(catData.map(c => ({
           slug: c.slug,
           name: c.name,
           nameEn: c.name_en,
-          count: fallbackCats.find(fc => fc.slug === c.slug)?.count ?? 0,
+          count: mapped.filter(p => p.category === c.slug).length,
         })));
       } catch {
-        // use fallback
+        // use empty
       } finally {
         setLoading(false);
       }

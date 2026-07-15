@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Upload, Loader2 } from "lucide-react";
 import { AdminShell } from "@/components/admin-shell";
 import { Badge } from "@/components/ui-bits";
 import { getProductById, updateProduct, type ProductRow } from "@/lib/supabase/products";
 import { getCategories, type CategoryRow } from "@/lib/supabase/categories";
 import { getVariants, createVariant, updateVariant, deleteVariant, type VariantRow } from "@/lib/supabase/variants";
+import { uploadImage } from "@/lib/supabase/upload";
 
 type EditableProduct = Omit<ProductRow, "id" | "created_at" | "updated_at">;
 
@@ -19,6 +20,7 @@ export default function Page() {
   const [cats, setCats] = useState<CategoryRow[]>([]);
   const [variants, setVariants] = useState<VariantRow[]>([]);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [newImg, setNewImg] = useState("");
 
   useEffect(() => {
@@ -51,6 +53,20 @@ export default function Page() {
     if (!newImg.trim() || !p) return;
     setP({ ...p, images: [...p.images, newImg.trim()], image_url: p.images.length === 0 ? newImg.trim() : p.image_url });
     setNewImg("");
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !p) return;
+    setUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        const url = await uploadImage(file);
+        setP(prev => prev ? { ...prev, images: [...prev.images, url], image_url: prev.images.length === 0 ? url : prev.image_url } : prev);
+      }
+    } catch { /* ignore */ }
+    setUploading(false);
+    e.target.value = "";
   }
 
   function removeImage(idx: number) {
@@ -131,7 +147,12 @@ export default function Page() {
           )}
         </div>
         <div className="mt-3 flex gap-2">
-          <input value={newImg} onChange={e => setNewImg(e.target.value)} onKeyDown={e => e.key === "Enter" && addImage()} placeholder="URL الصورة" className="flex-1 rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2 text-sm" />
+          <label className="flex cursor-pointer items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm hover:bg-white/5">
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {uploading ? "جاري الرفع..." : "رفع من الجهاز"}
+            <input type="file" accept="image/*" multiple onChange={handleFileUpload} className="hidden" disabled={uploading} />
+          </label>
+          <input value={newImg} onChange={e => setNewImg(e.target.value)} onKeyDown={e => e.key === "Enter" && addImage()} placeholder="أو URL الصورة" className="flex-1 rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2 text-sm" />
           <button onClick={addImage} className="rounded-full bg-azm-gold px-4 py-2 text-sm font-bold text-azm-black">إضافة</button>
         </div>
       </div>

@@ -8,7 +8,7 @@ import { SiteFooter } from "@/components/site-footer"
 const nav = [
   { l: "لوحة التحكم", to: "/account", i: LayoutDashboard, exact: true },
   { l: "طلباتي", to: "/account/orders", i: Package },
-  { l: "المفضلة", to: "/account/wishlist", i: Heart },
+  { l: "المفضلة", to: "/account/favorites", i: Heart },
   { l: "العناوين", to: "/account/addresses", i: MapPin },
   { l: "الملف الشخصي", to: "/account/profile", i: User },
   { l: "الإشعارات", to: "/account/notifications", i: Bell },
@@ -22,12 +22,9 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
     <div className="min-h-screen bg-azm-black text-white">
       <SiteHeader />
       <div className="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 sm:pt-36 lg:px-10">
-        <div className="mb-8 flex items-center gap-4 border-b border-white/5 pb-6">
-          <div className="grid h-14 w-14 place-items-center rounded-full bg-azm-gold/15 font-display text-2xl font-black text-azm-gold">م</div>
-          <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-azm-gold">أهلاً بيك</div>
-            <div className="font-display text-2xl font-black">مروان عبد الرحمن</div>
-          </div>
+        <div className="mb-8 border-b border-white/5 pb-6">
+          <div className="text-xs font-bold uppercase tracking-wider text-azm-gold">حسابي</div>
+          <div className="font-display text-2xl font-black">لوحة التحكم</div>
         </div>
         <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
           <aside className="h-fit rounded-2xl border border-white/5 bg-azm-charcoal/30 p-3">

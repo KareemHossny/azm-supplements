@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse;
   }
 
-  // Protect account routes
+  // Protect account routes — redirect to login if not authenticated
   if (pathname.startsWith(ACCOUNT_PREFIX) && !PUBLIC_ACCOUNT_PATHS.includes(pathname)) {
     if (!user) {
       const r = request.nextUrl.clone();
@@ -58,13 +58,6 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(r);
     }
     return supabaseResponse;
-  }
-
-  // Redirect /login and /signup if already logged in
-  if ((pathname === USER_LOGIN || pathname === "/signup") && user) {
-    const r = request.nextUrl.clone();
-    r.pathname = ACCOUNT_PREFIX;
-    return NextResponse.redirect(r);
   }
 
   return supabaseResponse;

@@ -21,6 +21,7 @@ export default function Page() {
   const [variants, setVariants] = useState<VariantRow[]>([]);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [newImg, setNewImg] = useState("");
 
   useEffect(() => {
@@ -59,12 +60,15 @@ export default function Page() {
     const files = e.target.files;
     if (!files || files.length === 0 || !p) return;
     setUploading(true);
+    setUploadError("");
     try {
       for (const file of Array.from(files)) {
         const url = await uploadImage(file);
         setP(prev => prev ? { ...prev, images: [...prev.images, url], image_url: prev.images.length === 0 ? url : prev.image_url } : prev);
       }
-    } catch { /* ignore */ }
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "فشل رفع الصورة");
+    }
     setUploading(false);
     e.target.value = "";
   }
@@ -155,6 +159,7 @@ export default function Page() {
           <input value={newImg} onChange={e => setNewImg(e.target.value)} onKeyDown={e => e.key === "Enter" && addImage()} placeholder="أو URL الصورة" className="flex-1 rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2 text-sm" />
           <button onClick={addImage} className="rounded-full bg-azm-gold px-4 py-2 text-sm font-bold text-azm-black">إضافة</button>
         </div>
+        {uploadError && <p className="mt-2 text-xs text-red-400">{uploadError}</p>}
       </div>
 
       {/* Variants */}

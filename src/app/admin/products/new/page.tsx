@@ -16,7 +16,6 @@ export default function Page() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
-  const [newImg, setNewImg] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [variants, setVariants] = useState<{ name: string; value: string; price_modifier: number; stock: number }[]>([]);
   const [form, setForm] = useState<Record<string, string>>({
@@ -27,12 +26,6 @@ export default function Page() {
   useEffect(() => { getCategories().then(setCats).catch(() => {}); }, []);
 
   function f(k: string, v: string) { setForm(prev => ({ ...prev, [k]: v })); }
-
-  function addImage() {
-    if (!newImg.trim()) return;
-    setImages(prev => [...prev, newImg.trim()]);
-    setNewImg("");
-  }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -128,14 +121,11 @@ export default function Page() {
             </div>
           ))}
         </div>
-        <div className="mt-3 flex gap-2">
-          <label className="flex cursor-pointer items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm hover:bg-white/5">
-            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-            {uploading ? "جاري الرفع..." : "رفع من الجهاز"}
+        <div className="mt-3">
+          <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/20 px-4 py-8 text-sm text-white/60 hover:border-azm-gold/40 hover:text-azm-gold">
+            {uploading ? <><Loader2 className="h-5 w-5 animate-spin" /> جاري الرفع...</> : <><Upload className="h-5 w-5" /> اضغط لرفع الصور</>}
             <input type="file" accept="image/*" multiple onChange={handleFileUpload} className="hidden" disabled={uploading} />
           </label>
-          <input value={newImg} onChange={e => setNewImg(e.target.value)} onKeyDown={e => e.key === "Enter" && addImage()} placeholder="أو URL الصورة" className="flex-1 rounded-xl border border-white/10 bg-azm-black/40 px-4 py-2 text-sm" />
-          <button onClick={addImage} className="rounded-full bg-azm-gold px-4 py-2 text-sm font-bold text-azm-black"><Upload className="h-4 w-4" /></button>
         </div>
         {uploadError && <p className="mt-2 text-xs text-red-400">{uploadError}</p>}
       </div>

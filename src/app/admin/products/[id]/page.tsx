@@ -27,7 +27,7 @@ export default function Page() {
   useEffect(() => {
     Promise.all([getProductById(id), getCategories(), getVariants(id)])
       .then(([product, categories, v]) => {
-        const { id: _id, created_at: _c, updated_at: _u, ...rest } = product;
+        const { id: _id, created_at: _c, updated_at: _u, categories: _cat, ...rest } = product;
         setP({ ...rest, images: product.images || [] });
         setCats(categories);
         setVariants(v);

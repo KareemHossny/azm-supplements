@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { Loader2 } from "lucide-react";
 import { AdminShell } from "@/components/admin-shell";
 import { getGovernorates, updateGovernorate, type GovernorateRow } from "@/lib/supabase/governorates";
 
@@ -11,15 +12,19 @@ export default function Page() {
     getGovernorates(true).then(setGovs).catch(() => {});
   }, []);
 
+  const [savingId, setSavingId] = useState<string | null>(null);
+
   const updateField = useCallback(async (id: string, field: "fee" | "delivery_days" | "is_active", value: string | boolean) => {
     const updates: Partial<GovernorateRow> = {};
     if (field === "fee") updates.fee = Number(value);
     else if (field === "delivery_days") updates.delivery_days = String(value);
     else if (field === "is_active") updates.is_active = Boolean(value);
     setGovs(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g));
+    setSavingId(id);
     try {
       await updateGovernorate(id, updates);
-    } catch { /* ignore */ }
+      setSavingId(null);
+    } catch { setSavingId(null) }
   }, []);
 
   return (
@@ -40,7 +45,10 @@ export default function Page() {
                   <input value={g.delivery_days} onChange={e => updateField(g.id, "delivery_days", e.target.value)} className="w-24 rounded-lg border border-white/10 bg-azm-black/40 px-3 py-1.5" />
                 </td>
                 <td className="p-3">
-                  <input type="checkbox" checked={g.is_active} onChange={e => updateField(g.id, "is_active", e.target.checked)} className="accent-azm-gold" />
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" checked={g.is_active} onChange={e => updateField(g.id, "is_active", e.target.checked)} className="accent-azm-gold" />
+                    {savingId === g.id && <Loader2 className="h-3 w-3 animate-spin text-white/40" />}
+                  </div>
                 </td>
               </tr>
             ))}

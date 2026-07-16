@@ -20,6 +20,7 @@ export default function Page() {
   const [cats, setCats] = useState<CategoryRow[]>([]);
   const [variants, setVariants] = useState<VariantRow[]>([]);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
@@ -42,10 +43,13 @@ export default function Page() {
   async function handleSave() {
     if (!p) return;
     setSaving(true);
+    setSaveError("");
     try {
       await updateProduct(id, p as Partial<ProductRow>);
       router.push("/admin/products");
-    } catch { /* ignore */ }
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "فشل حفظ المنتج");
+    }
     setSaving(false);
   }
 
@@ -94,6 +98,7 @@ export default function Page() {
       <><Link href="/admin/products" className="rounded-full border border-white/10 px-5 py-2 text-sm">للقائمة</Link>
       <button onClick={handleSave} disabled={saving} className="rounded-full bg-azm-gold px-5 py-2 text-sm font-bold text-azm-black disabled:opacity-50">{saving ? "جاري الحفظ..." : "حفظ"}</button></>
     }>
+      {saveError && <div className="mb-4 rounded-xl bg-red-500/10 p-3 text-sm text-red-400">{saveError}</div>}
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-white/5 bg-azm-charcoal/40 p-6">
           <h3 className="mb-4 font-display text-lg font-black">معلومات أساسية</h3>

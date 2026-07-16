@@ -8,6 +8,7 @@ import { PageShell } from "@/components/page-shell";
 import { governorates as staticGovernorates } from "@/lib/products";
 import { getGovernorates } from "@/lib/supabase/governorates";
 import { createOrder } from "@/lib/supabase/orders";
+import { getSettings } from "@/lib/supabase/settings";
 import { useCart } from "@/lib/cart-context";
 
 function Input({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
@@ -28,7 +29,6 @@ export default function Page() {
   const [govList, setGovList] = useState(staticGovernorates);
   const [gov, setGov] = useState(staticGovernorates[0]);
   const { items, subtotal: cartSubtotal, clearCart } = useCart();
-  const [pay, setPay] = useState("cod");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -39,6 +39,7 @@ export default function Page() {
   const [postalCode, setPostalCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
   const steps = ["البيانات", "العنوان", "الدفع", "المراجعة"];
 
   useEffect(() => {
@@ -53,11 +54,18 @@ export default function Page() {
         setGov(mapped[0] || staticGovernorates[0]);
       })
       .catch(() => {});
+    getSettings()
+      .then((rows) => {
+        const s = rows.find(r => r.key === "shipping_threshold");
+        if (s) setFreeShippingThreshold(Number(s.value) || 0);
+      })
+      .catch(() => {});
   }, []);
 
-  const discount = cartSubtotal > 0 ? 100 : 0;
-  const shippingFee = gov?.fee || 50;
-  const total = cartSubtotal + shippingFee - discount;
+  const discount = 0;
+  const freeShipping = freeShippingThreshold > 0 && cartSubtotal >= freeShippingThreshold;
+  const shippingFee = freeShipping ? 0 : (gov?.fee || 50);
+  const total = cartSubtotal + shippingFee;
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -192,8 +200,11 @@ export default function Page() {
           </div>
           <div className="mt-4 space-y-3 border-t border-white/5 pt-4 text-sm">
             <div className="flex justify-between text-white/70"><span>المجموع الفرعي</span><span>{cartSubtotal.toLocaleString("ar-EG")} ج.م</span></div>
-            <div className="flex justify-between text-white/70"><span>الشحن</span><span>{shippingFee} ج.م</span></div>
-            {discount > 0 && <div className="flex justify-between text-emerald-400"><span>الخصم</span><span>-{discount} ج.م</span></div>}
+            {freeShipping ? (
+              <div className="flex justify-between text-emerald-400"><span>الشحن مجاني</span><span>0 ج.م</span></div>
+            ) : (
+              <div className="flex justify-between text-white/70"><span>الشحن</span><span>{shippingFee} ج.م</span></div>
+            )}
             <div className="flex justify-between border-t border-white/5 pt-3 text-lg font-black"><span>الإجمالي</span><span className="text-azm-gold">{total.toLocaleString("ar-EG")} ج.م</span></div>
           </div>
         </aside>

@@ -14,6 +14,7 @@ const categoryLabel: Record<string, string> = {
 
 export default function Page() {
   const [products, setProducts] = useState<(ProductRow & { categories: { name: string; name_en: string; slug: string } | null })[]>([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     getProducts()
@@ -21,12 +22,14 @@ export default function Page() {
       .catch(() => {});
   }, []);
 
-  const handleDelete = useCallback(async (id: string) => {
+  const handleDelete = useCallback(async (id: string, name: string) => {
+    if (!confirm(`هل أنت متأكد من حذف "${name}"؟\nلا يمكن التراجع عن هذا الإجراء.`)) return;
+    setError("");
     try {
       await deleteProduct(id);
       setProducts((prev) => prev.filter((p) => p.id !== id));
-    } catch {
-      /* ignore */
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "فشل حذف المنتج — قد يكون مرتبط بطلبات موجودة");
     }
   }, []);
 
@@ -37,6 +40,7 @@ export default function Page() {
         <button className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm"><Filter className="h-4 w-4" /> فلترة</button>
         <button className="rounded-full border border-white/10 px-4 py-2 text-sm">إجراءات</button>
       </div>
+      {error && <div className="mb-4 rounded-xl bg-red-500/10 px-4 py-3 text-center text-sm text-red-400">{error}</div>}
       <div className="overflow-hidden rounded-2xl border border-white/5">
         <table className="w-full text-right text-sm">
           <thead className="bg-azm-charcoal/60 text-xs uppercase text-white/50">
@@ -58,7 +62,7 @@ export default function Page() {
                   <td className="p-3 font-bold text-azm-gold">{p.price} ج.م</td>
                   <td className="p-3">{stock}</td>
                   <td className="p-3"><Badge tone={p.is_active ? "green" : "gray"}>{p.is_active ? "نشط" : "غير نشط"}</Badge></td>
-                  <td className="p-3"><div className="flex gap-1"><Link href={"/admin/products/" + p.id} className="grid h-8 w-8 place-items-center rounded-full hover:bg-white/5"><Pencil className="h-3.5 w-3.5" /></Link><button onClick={() => handleDelete(p.id)} className="grid h-8 w-8 place-items-center rounded-full hover:bg-red-500/10 hover:text-red-400"><Trash2 className="h-3.5 w-3.5" /></button></div></td>
+                  <td className="p-3"><div className="flex gap-1"><Link href={"/admin/products/" + p.id} className="grid h-8 w-8 place-items-center rounded-full hover:bg-white/5"><Pencil className="h-3.5 w-3.5" /></Link><button onClick={() => handleDelete(p.id, p.name)} className="grid h-8 w-8 place-items-center rounded-full hover:bg-red-500/10 hover:text-red-400"><Trash2 className="h-3.5 w-3.5" /></button></div></td>
                 </tr>
               );
             })}

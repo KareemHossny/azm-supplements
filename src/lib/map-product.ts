@@ -1,7 +1,7 @@
 import type { Product } from "./products";
 import type { ProductRow } from "./supabase/products";
 
-export function mapProduct(row: ProductRow): Product {
+export function mapProduct(row: ProductRow & { categories?: { slug: string } | null }): Product {
   return {
     id: row.id,
     name: row.name,
@@ -17,7 +17,7 @@ export function mapProduct(row: ProductRow): Product {
       : row.tags?.includes("حصري") ? "حصري"
       : undefined,
     stock: row.stock ?? 0,
-    category: "supplements",
+    category: row.categories?.slug || "supplements",
   };
 }
 

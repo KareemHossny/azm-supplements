@@ -9,8 +9,7 @@ import { useCart } from "@/lib/cart-context";
 export default function Page() {
   const { items, removeItem, updateQty, subtotal } = useCart();
   const shipping = items.length > 0 ? 50 : 0;
-  const discount = subtotal > 0 ? 100 : 0;
-  const total = subtotal + shipping - discount;
+  const total = subtotal + shipping;
 
   if (items.length === 0) {
     return (
@@ -57,7 +56,6 @@ export default function Page() {
           <div className="mt-6 space-y-3 border-t border-white/5 pt-4 text-sm">
             <div className="flex justify-between text-white/70"><span>المجموع الفرعي</span><span>{subtotal.toLocaleString("ar-EG")} ج.م</span></div>
             <div className="flex justify-between text-white/70"><span>الشحن</span><span>{shipping} ج.م</span></div>
-            <div className="flex justify-between text-emerald-400"><span>الخصم</span><span>-{discount} ج.م</span></div>
             <div className="flex justify-between border-t border-white/5 pt-3 text-lg font-black"><span>الإجمالي</span><span className="text-azm-gold">{total.toLocaleString("ar-EG")} ج.م</span></div>
           </div>
           <Link href="/checkout" className="mt-6 block w-full rounded-full bg-azm-gold py-4 text-center text-sm font-bold text-azm-black hover:bg-azm-sand">إتمام الشراء</Link>

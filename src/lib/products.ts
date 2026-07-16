@@ -17,7 +17,7 @@ export type Product = {
   image: string;
   images?: string[];
   tag?: "الأكثر مبيعاً" | "جديد" | "خصم" | "حصري";
-  category: "supplements" | "accessories";
+  category: string;
   stock?: number;
 };
 

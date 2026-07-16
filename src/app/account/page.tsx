@@ -1,12 +1,22 @@
-import Link from "next/link"
-import { Package, Heart, MapPin, Ticket } from "lucide-react"
-import { StatCard } from "@/components/ui-bits"
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Package, Heart, MapPin, Ticket } from "lucide-react";
+import { StatCard } from "@/components/ui-bits";
+import { getOrders } from "@/lib/supabase/orders";
 
 export default function Dashboard() {
+  const [orderCount, setOrderCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    getOrders().then(o => setOrderCount(o.length)).catch(() => setOrderCount(0));
+  }, []);
+
   return (
     <div className="space-y-8">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="الطلبات" value="—" />
+        <StatCard label="الطلبات" value={orderCount === null ? "—" : String(orderCount)} />
         <StatCard label="كوبونات" value="—" />
       </div>
       <div className="grid gap-4 md:grid-cols-2">
@@ -18,5 +28,5 @@ export default function Dashboard() {
         ))}
       </div>
     </div>
-  )
+  );
 }

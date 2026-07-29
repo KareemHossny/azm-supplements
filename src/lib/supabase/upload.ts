@@ -2,6 +2,15 @@
 
 import { createClient } from "./client";
 
+function preloadImage(url: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url;
+  });
+}
+
 export async function uploadImage(file: File): Promise<string> {
   if (file.size > 5 * 1024 * 1024) throw new Error("حجم الصورة كبير جدًا — الحد الأقصى 5 ميجابايت");
   const supabase = createClient();
@@ -9,10 +18,19 @@ export async function uploadImage(file: File): Promise<string> {
   const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
   const { data, error } = await supabase.storage.from("product-images").upload(path, file);
   if (error) {
-    if (error.message?.includes("bucket")) throw new Error("bucket 'product-images' غير موجود — أنشئه في Supabase Storage Dashboard");
+    if (error.message?.includes("bucket")) throw new Error("bucket 'product-images' غير موجود — أنشئه في Supabase Storage Dashboard ثم أعد المحاولة");
     if (error.message?.includes("policy") || error.message?.includes("unauthorized")) throw new Error("ليس لديك صلاحية للرفع — تأكد من تسجيل الدخول كمشرف");
     throw new Error(error.message || "فشل رفع الصورة");
   }
   const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(data.path);
+  const loaded = await preloadImage(urlData.publicUrl);
+  if (!loaded) {
+    const { data: signedData } = await supabase.storage.from("product-images").createSignedUrl(data.path, 315360000);
+    if (signedData) {
+      const signedLoaded = await preloadImage(signedData.signedUrl);
+      if (signedLoaded) return signedData.signedUrl;
+    }
+    throw new Error("تم رفع الصورة ولكن لا يمكن عرضها — تأكد من أن bucket 'product-images' عام (Public) في Supabase > Storage > product-images > Public bucket");
+  }
   return urlData.publicUrl;
 }

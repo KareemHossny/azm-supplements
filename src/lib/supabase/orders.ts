@@ -8,6 +8,7 @@ export type OrderRow = {
   customer_name: string;
   customer_phone: string;
   customer_email: string;
+  user_id: string | null;
   governorate: string;
   city: string;
   address: string;
@@ -50,12 +51,15 @@ export async function createOrder(order: {
 }) {
   const supabase = createClient();
 
+  const { data: { user } } = await supabase.auth.getUser();
+
   const { data: orderData, error: orderError } = await supabase
     .from("orders")
     .insert({
       customer_name: order.customer_name,
       customer_phone: order.customer_phone,
       customer_email: order.customer_email || "",
+      user_id: user?.id || null,
       governorate: order.governorate,
       city: order.city,
       address: order.address,
@@ -95,13 +99,11 @@ export async function createOrder(order: {
   return orderData as OrderRow;
 }
 
-export async function getOrders() {
+export async function getOrders(userId?: string) {
   const supabase = createClient();
-  const { data, error } = await supabase
-    .from("orders")
-    .select("*")
-    .order("created_at", { ascending: false });
-
+  let query = supabase.from("orders").select("*").order("created_at", { ascending: false });
+  if (userId) query = query.eq("user_id", userId);
+  const { data, error } = await query;
   if (error) throw error;
   return data as OrderRow[];
 }

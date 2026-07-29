@@ -4,12 +4,16 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Badge } from "@/components/ui-bits"
 import { getOrders, type OrderRow } from "@/lib/supabase/orders"
+import { getUser } from "@/lib/supabase/auth"
 
 export default function Orders() {
   const [orders, setOrders] = useState<OrderRow[]>([]);
 
   useEffect(() => {
-    getOrders().then(setOrders).catch(() => {});
+    getUser().then(u => {
+      if (u) getOrders(u.id).then(setOrders).catch(() => {});
+      else getOrders().then(setOrders).catch(() => {});
+    }).catch(() => {});
   }, []);
 
   return (

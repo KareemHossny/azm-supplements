@@ -5,12 +5,16 @@ import Link from "next/link";
 import { Package, Heart, MapPin, Ticket } from "lucide-react";
 import { StatCard } from "@/components/ui-bits";
 import { getOrders } from "@/lib/supabase/orders";
+import { getUser } from "@/lib/supabase/auth";
 
 export default function Dashboard() {
   const [orderCount, setOrderCount] = useState<number | null>(null);
 
   useEffect(() => {
-    getOrders().then(o => setOrderCount(o.length)).catch(() => setOrderCount(0));
+    getUser().then(u => {
+      if (u) getOrders(u.id).then(o => setOrderCount(o.length)).catch(() => setOrderCount(0));
+      else setOrderCount(0);
+    }).catch(() => setOrderCount(0));
   }, []);
 
   return (

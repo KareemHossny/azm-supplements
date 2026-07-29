@@ -126,18 +126,6 @@
       "namedRegex": "^/admin(?:/)?$"
     },
     {
-      "page": "/admin/admins",
-      "regex": "^/admin/admins(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/admin/admins(?:/)?$"
-    },
-    {
-      "page": "/admin/analytics",
-      "regex": "^/admin/analytics(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/admin/analytics(?:/)?$"
-    },
-    {
       "page": "/admin/categories",
       "regex": "^/admin/categories(?:/)?$",
       "routeKeys": {},
@@ -168,12 +156,6 @@
       "namedRegex": "^/admin/login(?:/)?$"
     },
     {
-      "page": "/admin/notifications",
-      "regex": "^/admin/notifications(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/admin/notifications(?:/)?$"
-    },
-    {
       "page": "/admin/orders",
       "regex": "^/admin/orders(?:/)?$",
       "routeKeys": {},
@@ -190,12 +172,6 @@
       "regex": "^/admin/products/new(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/admin/products/new(?:/)?$"
-    },
-    {
-      "page": "/admin/reviews",
-      "regex": "^/admin/reviews(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/admin/reviews(?:/)?$"
     },
     {
       "page": "/admin/settings",

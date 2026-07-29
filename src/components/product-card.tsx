@@ -27,6 +27,7 @@ export function ProductCard({ p, index = 0 }: { p: Product; index?: number }) {
             loading="lazy"
             width={800}
             height={800}
+            onError={e => { (e.target as HTMLImageElement).src = "/placeholder.svg" }}
             className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
           />
         </Link>

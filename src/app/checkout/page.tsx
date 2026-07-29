@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Check, Truck, Loader2 } from "lucide-react";
+import { Check, Truck, Loader2, Tag } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { governorates as staticGovernorates } from "@/lib/products";
 import { getGovernorates } from "@/lib/supabase/governorates";
 import { createOrder } from "@/lib/supabase/orders";
 import { getSettings } from "@/lib/supabase/settings";
+import { createClient } from "@/lib/supabase/client";
 import { useCart } from "@/lib/cart-context";
 
 function Input({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
@@ -40,6 +41,11 @@ export default function Page() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponError, setCouponError] = useState("");
+  const [couponApplied, setCouponApplied] = useState("");
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
   const steps = ["البيانات", "العنوان", "الدفع", "المراجعة"];
 
   useEffect(() => {
@@ -62,10 +68,51 @@ export default function Page() {
       .catch(() => {});
   }, []);
 
-  const discount = 0;
   const freeShipping = freeShippingThreshold > 0 && cartSubtotal >= freeShippingThreshold;
   const shippingFee = freeShipping ? 0 : (gov?.fee || 50);
-  const total = cartSubtotal + shippingFee;
+  const discount = couponApplied === "FREE_SHIPPING" ? shippingFee : couponDiscount;
+  const total = cartSubtotal + shippingFee - discount;
+
+  async function handleApplyCoupon() {
+    if (!couponCode.trim()) return;
+    setApplyingCoupon(true);
+    setCouponError("");
+    const supabase = createClient();
+    const { data } = await supabase.from("coupons").select("*").eq("code", couponCode.trim().toUpperCase()).eq("is_active", true).single();
+    if (!data) {
+      setCouponError("كود الخصم غير صالح");
+      setApplyingCoupon(false);
+      return;
+    }
+    const c = data as { code: string; type: string; value: number; min_order: number; max_uses: number; used_count: number; expires_at: string | null };
+    if (c.expires_at && new Date(c.expires_at) < new Date()) {
+      setCouponError("انتهت صلاحية الكود");
+      setApplyingCoupon(false);
+      return;
+    }
+    if (c.max_uses > 0 && c.used_count >= c.max_uses) {
+      setCouponError("تم استخدام الكود بأقصى عدد مرات");
+      setApplyingCoupon(false);
+      return;
+    }
+    if (cartSubtotal < c.min_order) {
+      setCouponError(`الحد الأدنى للطلب ${c.min_order} ج.م`);
+      setApplyingCoupon(false);
+      return;
+    }
+    if (c.type === "shipping") {
+      setCouponApplied("FREE_SHIPPING");
+      setCouponDiscount(0);
+    } else if (c.type === "percentage") {
+      setCouponDiscount(Math.round(cartSubtotal * c.value / 100));
+      setCouponApplied(c.code);
+    } else {
+      setCouponDiscount(Math.min(c.value, cartSubtotal));
+      setCouponApplied(c.code);
+    }
+    setCouponError("");
+    setApplyingCoupon(false);
+  }
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -198,6 +245,15 @@ export default function Page() {
               </div>
             ))}
           </div>
+          <div className="mt-3 flex items-center gap-2 rounded-full border border-white/10 bg-azm-black/40 p-1.5 pr-4">
+            <Tag className="h-4 w-4 text-azm-gold shrink-0" />
+            <input placeholder="كود الخصم" value={couponCode} onChange={e => setCouponCode(e.target.value)} className="flex-1 bg-transparent text-sm placeholder:text-white/40 focus:outline-none" />
+            <button onClick={handleApplyCoupon} disabled={applyingCoupon || !couponCode.trim()} className="rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold disabled:opacity-40">
+              {applyingCoupon ? <Loader2 className="h-3 w-3 animate-spin" /> : "تطبيق"}
+            </button>
+          </div>
+          {couponError && <p className="text-xs text-red-400">{couponError}</p>}
+          {couponApplied && <p className="text-xs text-emerald-400">تم تطبيق الكود بنجاح</p>}
           <div className="mt-4 space-y-3 border-t border-white/5 pt-4 text-sm">
             <div className="flex justify-between text-white/70"><span>المجموع الفرعي</span><span>{cartSubtotal.toLocaleString("ar-EG")} ج.م</span></div>
             {freeShipping ? (
@@ -205,6 +261,7 @@ export default function Page() {
             ) : (
               <div className="flex justify-between text-white/70"><span>الشحن</span><span>{shippingFee} ج.م</span></div>
             )}
+            {discount > 0 && <div className="flex justify-between text-emerald-400"><span>الخصم</span><span>-{discount} ج.م</span></div>}
             <div className="flex justify-between border-t border-white/5 pt-3 text-lg font-black"><span>الإجمالي</span><span className="text-azm-gold">{total.toLocaleString("ar-EG")} ج.م</span></div>
           </div>
         </aside>

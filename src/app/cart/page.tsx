@@ -25,7 +25,7 @@ export default function Page() {
         <div className="space-y-4">
           {items.map(item => (
             <div key={item.id} className="flex gap-4 rounded-2xl border border-white/5 bg-azm-charcoal/40 p-4">
-              <img src={item.image} className="h-28 w-28 rounded-xl object-cover" alt={item.name} />
+              <img src={item.image} className="h-28 w-28 rounded-xl object-cover" alt={item.name} onError={e => { (e.target as HTMLImageElement).src = "/placeholder.svg" }} />
               <div className="flex flex-1 flex-col justify-between">
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-wider text-azm-gold">{item.brand}</div>

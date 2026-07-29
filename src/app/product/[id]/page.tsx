@@ -95,14 +95,14 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
         {/* Gallery */}
         <div>
           <div className="group relative overflow-hidden rounded-3xl border border-white/5 bg-azm-charcoal/40">
-            <img src={allImages[imgIdx]} alt={p.name} className="aspect-square w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <img src={allImages[imgIdx]} alt={p.name} className="aspect-square w-full object-cover transition-transform duration-700 group-hover:scale-110" onError={e => { (e.target as HTMLImageElement).src = "/placeholder.svg" }} />
             {p.tag && <span className="absolute top-4 right-4 rounded-full bg-azm-gold px-3 py-1 text-[10px] font-bold text-azm-black">{p.tag}</span>}
             {discount > 0 && <span className="absolute top-4 left-4 rounded-full bg-red-500 px-3 py-1 text-[10px] font-bold text-white">-{discount}%</span>}
           </div>
           <div className="mt-3 grid grid-cols-4 gap-2">
             {allImages.map((im, i) => (
               <button key={i} onClick={() => setImgIdx(i)} className={`overflow-hidden rounded-xl border ${i === imgIdx ? "border-azm-gold" : "border-white/10"}`}>
-                <img src={im} className="aspect-square w-full object-cover" alt="" />
+                <img src={im} className="aspect-square w-full object-cover" alt="" onError={e => { (e.target as HTMLImageElement).src = "/placeholder.svg" }} />
               </button>
             ))}
           </div>

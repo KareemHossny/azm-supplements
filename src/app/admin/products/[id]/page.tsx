@@ -137,7 +137,7 @@ export default function Page() {
         <div className="flex flex-wrap gap-3">
           {p.images.map((img, i) => (
             <div key={i} className="group relative">
-              <img src={img} className="h-24 w-24 rounded-xl object-cover border border-white/10" />
+              <img src={img} className="h-24 w-24 rounded-xl object-cover border border-white/10" onError={e => { (e.target as HTMLImageElement).src = "/placeholder.svg" }} />
               <button onClick={() => removeImage(i)} className="absolute -top-2 -right-2 grid h-6 w-6 place-items-center rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100"><Trash2 className="h-3 w-3" /></button>
             </div>
           ))}

@@ -41,7 +41,7 @@ export default function Page() {
               const low = stock < 10;
               return (
                 <tr key={p.id}>
-                  <td className="p-3"><div className="flex items-center gap-3"><img src={p.image_url} className="h-9 w-9 rounded-lg object-cover" alt="" /><span className="font-bold">{p.name}</span></div></td>
+                  <td className="p-3"><div className="flex items-center gap-3"><img src={p.images?.[0] || p.image_url || "/placeholder.svg"} className="h-9 w-9 rounded-lg object-cover" alt="" onError={e => { (e.target as HTMLImageElement).src = "/placeholder.svg" }} /><span className="font-bold">{p.name}</span></div></td>
                   <td className="p-3 font-mono text-xs">{p.sku || `AZM-${p.id.slice(0, 4).toUpperCase()}`}</td>
                   <td className="p-3 font-bold">{stock}</td>
                   <td className="p-3 text-white/60">10</td>
